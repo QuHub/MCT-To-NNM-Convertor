@@ -1,0 +1,24 @@
+PROJECT_RUBY="ree-1.8.7-2011.03"
+
+# use the global gemset in order to check for and install bundler, since we
+# don't need it to be different for different projects
+rvm use $PROJECT_RUBY@global --create --install
+
+echo -n "Checking if bundler gem is installed... "
+if `ruby -rubygems -e "gem 'bundler'" &>/dev/null`; then
+  echo "Yup, good to go."
+else
+  echo "Nope. Doing that now."
+  gem install bundler
+fi
+
+# now use the gemset for this project and check the bundle
+rvm use $PROJECT_RUBY@platypus-rails3 --create
+bundle check
+
+# Tweak GC configuration settings for Ruby Enterprise Edition; these make the tests run faster.
+export RUBY_HEAP_MIN_SLOTS=1000000
+export RUBY_HEAP_SLOTS_INCREMENT=1000000
+export RUBY_HEAP_SLOTS_GROWTH_FACTOR=1
+export RUBY_GC_MALLOC_LIMIT=1000000000
+export RUBY_HEAP_FREE_MIN=500000
